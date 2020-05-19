@@ -1,0 +1,95 @@
+---
+title: "Linear Regression Analysis"
+---
+
+We first read the data into R. Use the function str( ) to find the structure of the data frame and the summary( ) to summarize the data. We then create a new variable called “logSales”, which is the logarithm of the variable “Sales” in the data frame “walmart”. 
+
+```{r}
+data <- read.csv("Walmart_Data.csv")
+str(data)
+```
+```{r}
+summary(data)
+```
+```{r}
+data$logSales = log(data$Sales)
+head(data)
+```
+We then use the correlation function cor( ) to find the pairwise correlation between the three variables, “Sales”, “Promotion” and “Feature”
+```{r}
+cor(data[ , 2:4])
+```
+```{r}
+library(ggplot2)
+```
+Scatterplots can be used for visually presenting the relationships.
+```{r}
+plot(data$Promotion,data$Sales)
+```
+```{r}
+plot(data$Feature,data$Sales)
+```
+```{r}
+hist(data$Sales)
+```
+```{r}
+hist(data$logSales)
+```
+```{r}
+library(stats)
+```
+We will now run a regression to see how the dependent variable logsales are impacted by a variety of factors. 
+```{r}
+lm_model<- lm(data$logSales~data$Promotion+data$Feature+data$Walmart+data$Holiday)
+```
+```{r}
+summary(lm_model)
+```
+B1 is 0.84754, indicating that an increase in promotions by 1 will lead to 0.84754 more log sales. Additionally, because there is a P-value of 8.48e-05, which is less than 0.05, the difference is statistically significant. 
+
+B2 is 0.75076, indicating that an increase in feature advertising by 1 will lead to 0.75076 more log sales. Additionally, because there is a P-value of 0.000485, which is less than 0.05, the difference is statistically significant. 
+
+B3 is -0.31127, indicating that the presence of Walmart will lead to a decrease in log sales by 0.31127 than when there is not a Walmart. Additionally, because there is a P-value of 6.76e-11, which is less than 0.05, the difference is statistically significant. 
+
+B4 is 0.26004, indicating that when there is a holiday, there is 0.26004 more log sales than when there is not a holiday. Additionally, because there is a P-value of 0.001164, which is less than 0.05, the difference is statistically significant. 
+
+So can we conclude the entry of Wal-mart affects the sales of the local store?
+
+Yes, we can. We see that after Walmart is present, log sales decrease by 0.31127 based on this regression model. This coefficient is also statistically significant given an incredibly low P-value of 6.76e-11. Therefore, we conclude that the entry of Walmart decreases sales. 
+
+We now incorporate interaction effects.
+```{r}
+lm_model2<- lm(data$logSales~data$Promotion+data$Feature+data$Walmart+data$Holiday+data$Holiday:data$Walmart+data$Holiday:data$Promotion)
+```
+```{r}
+summary(lm_model2)
+```
+B1 is 0.7454. This means whenever there is an increase in promotions by 1, there is an increase in log sales by 0.7454. This is a statistically significant increase given a small P- value of 0.00123, which is below 0.05. 
+
+B2 is 0.7828. This means whenever there is an increase in feature advertising by 1, there is an increase in log sales by 0.7828. This is a statistically significant increase given a small P-value of 0.00033, which is below 0.05. 
+
+B3 is -0.2978, indicating that the presence of Walmart will lead to a decrease in log sales by 0.2978 than when there is not a Walmart. Additionally, because there is a P-value of 1.08e-09, which is less than 0.05, the difference is statistically significant. 
+
+B4 is -0.1128 indicating that when there is a holiday, there is 0.1128 less log sales than when there is not a holiday. However, because the P-value is quite large at 0.87961, the difference is not statistically significant. 
+
+B5 is -0.1307 indicating that when there is both a Walmart present and a holiday, there is 0.1307 less log sales than when there is not both a Walmart and a holiday present. However, because the P-value is quite large at 0.49034, the difference is not statistically significant. 
+
+B6 is 0.4330 indicating that when there is a holiday and promotions go up by 1, there is 0.4330 more log sales than when there is not a holiday and promotions do not go up by 1. However, because the P-value is quite large at 0.52219, the difference is not statistically significant. 
+
+We can compare this model with the previous one using AIC and BIC.
+```{r}
+AIC(lm_model)
+```
+```{r}
+AIC(lm_model2)
+```
+```{r}
+BIC(lm_model)
+```
+```{r}
+BIC(lm_model2)
+```
+Model A (the model in Question 3) is the better model under both AIC and BIC. We see that Model A has a smaller AIC (-21.45434 versus -19.48443) as well as a lower BIC (- 5.823324 versus 1.356929). Therefore, we can conclude Model A is preferable. 
+
+
+
